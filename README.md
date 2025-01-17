@@ -5,12 +5,15 @@ This is a Dash web application that allows users to select assets, optimize thei
 ## Features
 
 - **Industry-Based Ticker Selection**: Users can filter tickers based on the industry (sector) they are interested in.
-- **Portfolio Construction**: Users can select tickers from a filtered list and add them to a portfolio for further analysis.
+- **Portfolio Construction**: Users can select tickers from a filtered list by sector and add them to a portfolio for further analysis.
+
 - **Portfolio Optimization**: The app supports several optimization methods including:
   - **Equally Weighted Portfolio**
-  - **Mean-Variance Optimization (MVO)**
   - **Maximum Sharpe Ratio Portfolio**
-  - **Hierarchical Risk Parity (HRP)**
+  - **Minimum Volatility Portfolio (Minimum Risk)**
+  - **Omega Ratio (Positive Returns)**
+  - **Equal Risk Contribution (ERC)**
+
 - **Performance Analysis**:
   - **Trend Analysis**: Plot stock prices and returns over time for the selected tickers.
   - **Correlation Analysis**: Display a correlation matrix between the selected tickers and the S\&P 500.
