@@ -1,4 +1,4 @@
-pip install dash
-pip install yfinance
-pip install pandas
-pip install scipy
+dash==2.18.2,
+yfinance==0.2.51,
+pandas==2.2.2,
+scipy==1.13.1
