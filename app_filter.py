@@ -374,7 +374,7 @@ def layout():
                                         html.Div('Time Frame', className='fullwidth-app-controls-name' ),
                                         dcc.DatePickerRange(
                                             id='date-picker',
-                                            start_date='2000-01-01',
+                                            start_date='2020-01-01',
                                             end_date='2024-12-31',
                                             display_format='YYYY-MM-DD',
                                             className='custom-date-picker'
@@ -551,7 +551,6 @@ def layout():
     )
 
 
-
 def callbacks(app):
     """
     Define the callback functions for the Dash application to handle interactivity.
@@ -586,12 +585,42 @@ def callbacks(app):
             selected_industry (str): The selected industry from the dropdown.
         
         Returns:
-            list: Filtered dropdown options based on the selected industry.
+            list: Filtered dropdown options based on the selected industry with "Select All" option added.
         """
         if not selected_industry:  # If no industry is selected, return no options
             return []
         filtered_df = sp500_df[sp500_df['GICS Sector'] == selected_industry]
-        return create_options(filtered_df)
+        # Add "Select All" option
+        options = [{'label': 'Select All', 'value': 'select_all'}] + create_options(filtered_df)
+        return options
+
+    # Callback 2: Handle "Select All" functionality
+    @app.callback(
+        Output('ticker-dropdown', 'value'),
+        Input('ticker-dropdown', 'options'),
+        Input('ticker-dropdown', 'value'),
+        prevent_initial_call=True
+    )
+    def handle_select_all(options, selected_values):
+        """
+        Handle the "Select All" functionality in the ticker dropdown.
+        
+        Args:
+            options (list): The list of options in the dropdown.
+            selected_values (list): The currently selected values in the dropdown.
+        
+        Returns:
+            list: Updated selected values including all tickers if "Select All" is chosen.
+        """
+        # Get all available tickers from options (excluding "Select All")
+        all_tickers = [option['value'] for option in options if option['value'] != 'select_all']
+
+        if 'select_all' in selected_values:
+            # If "Select All" is selected, return all tickers
+            return all_tickers
+
+        # Otherwise, return the current selection
+        return selected_values
 
     # Callback 2: Store selected tickers persistently (clearing if portfolio is empty)
     @app.callback(
@@ -629,11 +658,16 @@ def callbacks(app):
         if not portfolio:
             updated_tickers = list(set(selected_tickers))  # Reset to selected tickers
             return updated_tickers, 0  # Reset optimize portfolio button n_clicks to 0
-        
-        # If there are tickers in the portfolio, update stored tickers by adding the selected ones
-        updated_tickers = list(set(stored_tickers + selected_tickers))  # Avoid duplicates
-        return updated_tickers, store_clicks  # Keep optimize portfolio button n_clicks unchanged
 
+        if not portfolio:
+            # If there is empty portfolio, update stored tickers by adding the selected ones
+            updated_tickers = list(set(selected_tickers))  # Avoid duplicates
+            return updated_tickers, store_clicks  # Keep optimize portfolio button n_clicks unchanged
+
+        else:
+            # If there are tickers in the portfolio, update stored tickers by adding the selected ones
+            updated_tickers = list(set(stored_tickers + selected_tickers))  # Avoid duplicates
+            return updated_tickers, store_clicks  # Keep optimize portfolio button n_clicks unchanged
 
     # Callback 3: Display stored tickers in portfolio dropdown
     @app.callback(
@@ -760,7 +794,7 @@ def callbacks(app):
         # Prepare the message for removed assets
         if removed_assets:
             removed_message = html.Div(
-                f"The following assets have been removed due to negligible weights: {', '.join(removed_assets)}",
+                f"Some assets have been removed due to negligible weights (<0.01%).",
             className='removed-message',
             )   
     

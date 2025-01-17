@@ -210,8 +210,8 @@ input#selected-rows, input#selected-columns {
     padding: 10px;
     text-align: center;
     font-size: 12px !important;
-    max-width: 80%;           /* Ensure the message fits within the parent container */
-    overflow-wrap: break-word; /* Break long words for responsiveness */
+    max-width: 100%;           /* Ensure the message fits within the parent container */
+    overflow-wrap: flex; /* Break long words for responsiveness */
     word-wrap: break-word;     /* Fallback for older browsers */
     white-space: normal;       /* Allow text to wrap to the next line */
     width: fit-content;        /* Adjust the width dynamically */
