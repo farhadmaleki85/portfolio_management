@@ -1,0 +1,287 @@
+#pfmanager-body {
+    color: #E4E4E4 !important;
+    background-color: #191A1C !important;
+}
+#pfmanager-body ::-webkit-scrollbar {
+    background-color: #191A1C !important;
+}
+#pfmanager-body ::-webkit-scrollbar-thumb {
+    background-color: #FFBF00 !important;
+}
+
+#pfmanager-wrapper {
+    width: 100px;
+    display: inline-block !important;
+    padding: 0px;
+    overflow-x: scroll;
+    margin: 0px;
+}
+#pfmanager-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+#pfmanager-control-tabs, #pfmanager-control-tabs .tab {
+    background-color: #232323 !important;
+}
+#pfmanager-body .control-tab {
+    background-color: #232323 !important;
+}
+#pfmanager-control-tabs .tab {
+    background-color: #232323;
+    color: #E4E4E4;
+    border-color: #727272 !important;
+}
+
+#pfmanager-body .about-tab-content {
+    padding: 20px; /* Add spacing around the content */
+    background-color: #f9f9f9; /* Light gray background */
+    border-radius: 5px; /* Rounded corners */
+    line-height: 1.6; /* Adjust line spacing */
+    margin-bottom: 20px; /* Space below the content */
+}
+
+#pfmanager-body .about-tab-content h4 {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+#pfmanager-body .about-tab-content p {
+    font-size: 14px; /* Adjust the font size */
+    line-height: 1.6; /* Adjust line spacing */
+    margin-bottom: 15px; /* Add spacing below the paragraph */
+   /* text-align: justify;  Optionally align text for better readability */
+}
+
+#pfmanager-body .about-tab-content ul li {
+    margin-bottom: 10px; /* Space between bullet points */
+    font-size: 13px; /* Adjust font size for bullet points */
+}
+
+#pfmanager-body .bullet-point {
+    margin-bottom: 20px; /* Adjust the spacing between items */
+    line-height: 1.6; /* Optional: Adjust line spacing within each item */
+}
+
+
+
+#pfmanager-control-tabs .tab--selected {
+    color: #FFBF00 !important;
+    border-top-color: initial !important;
+}
+#pfmanager-control-tabs .Select-control {
+    border: solid 1px #727272;
+    background-color: #232323 !important;
+}
+#pfmanager-control-tabs .Select, #pfmanager-control-tabs .Select-control, #pfmanager-control-tabs input, #pfmanager-control-tabs .Select-menu-outer, #pfmanager-control-tabs .Select-value-label {
+    background-color: #232323 !important;
+    border-color: #727272 !important;
+    color: #E4E4E4;
+}
+#pfmanager-control-tabs .Select-value-icon {
+    background-color: #232323;
+}
+#pfmanager-control-tabs .Select-value {
+    border-color: #727272;
+}
+
+#pfmanager-annot-color, #pfmanager-body .chrome-picker {
+    border: none !important;
+    background: none !important;
+    margin-bottom: 125px;
+}
+#pfmanager-annot-color > div > div:nth-child(1) {
+    margin-bottom: -60px !important;
+}
+#pfmanager-annot-color > div > div:nth-child(1) > div {
+    height: 120px;
+}
+#pfmanager-annot-color > div > div:nth-child(2) > div:nth-child(2) {
+    display: none !important;
+}
+#pfmanager-annot-color {
+    color: white !important;
+}
+#pfmanager-body .Select-value-icon {
+    color: #FFBF00;
+    border-right: 1px solid #AAAAAA;
+}
+
+#pfmanager-body .control-slider {
+    width: 225px !important;
+    margin-top: 4px;
+}
+#pfmanager-body .rc-slider-track {
+    background-color: #FFBF00 !important;
+}
+#pfmanager-body .rc-slider-handle {
+    background-color: #232323;
+    border: solid 2px #FFBF00 !important;
+}
+#pfmanager-body .rc-slider-rail {
+    background-color: #191A1C !important;
+}
+
+#threshold-wrapper {
+    margin-top: -30px;
+}
+
+#pfmanager-body #remove-all-group-markers {
+    float: right;
+    font-size:7pt !important;
+    line-height: 10pt;
+    padding: 0px !important;
+    color: #E4E4E4;
+    font-weight: 100;
+    border-color: #FFBF00;
+    text-align: center;
+    width: 140px;
+    height: 25px;
+    margin-top: 5px;
+    transition-duration: 500ms;
+}
+
+#pfmanager-body #remove-all-group-markers:hover {
+    border-color: #E4E4E4;
+}
+
+input#selected-rows, input#selected-columns {
+    padding: 0px !important;
+    margin-top: 7px;
+}
+
+#hide-labels, #cluster-checklist {
+    width: 190px;
+    display: inline-block;
+}
+#selected-rows, #selected-columns {
+    width: 100%;
+}
+#selected-rows .Select-multi-value-wrapper, #selected-columns .Select-multi-value-wrapper {
+    max-height: 115px;
+    overflow-y: auto;
+    margin-top: 5px;
+}
+#pfmanager-body .app-controls-name {
+    width: 125px;
+}
+
+#pfmanager-body #annotation {
+    width: 100% !important;
+}
+#pfmanager-datasets {
+    width: 100%;
+}
+
+#pfmanager-body .control-button {
+    background-color: #232323;
+    color: #E4E4E4;
+    font-size: 13px;
+    padding: 10px 30px;
+    border: 1px solid #FFBF00;
+    border-radius: 5px;
+    text-align: center;
+    display: flex; /* Flexbox for centering */
+    align-items: center; /* Vertical alignment */
+    justify-content: center; /* Horizontal alignment */
+    height: 40px; /* Ensure consistent height */
+    line-height: normal; /* Let Flexbox handle alignment */
+    cursor: pointer;
+}
+
+
+
+#pfmanager-body .control-button:hover {
+    background-color: #FFBF00;
+    color: #232323;
+    border-color: #FFBF00;
+}
+
+#pfmanager-body #row-labels-source {
+    width: 100%;
+    margin: 10px 0px;
+}
+#pfmanager-body .removed-message {
+    color: #FFBF00 !important;
+    /* font-weight: bold; */
+    margin-top: 20px;
+    background-color: #232323;
+    border: 1px solid #727272;
+    border-radius: 5px;
+    padding: 10px;
+    text-align: center;
+    font-size: 12px !important;
+    max-width: 80%;           /* Ensure the message fits within the parent container */
+    overflow-wrap: break-word; /* Break long words for responsiveness */
+    word-wrap: break-word;     /* Fallback for older browsers */
+    white-space: normal;       /* Allow text to wrap to the next line */
+    width: fit-content;        /* Adjust the width dynamically */
+    margin-left: auto;         /* Center-align the message box */
+    margin-right: auto;
+}
+
+/* Control the size and font of the custom date picker */
+#pfmanager-body .custom-date-picker {
+    font-size: 12px; /* Set the font size */
+    width: 150%;    /* Set the width of the date picker box */
+    height: 20px;    /* Set the height of the date picker box */
+    padding: 0px;   /* Add some padding inside the box */
+}
+
+/* Adjust the input field inside the date picker */
+.custom-date-picker input {
+    font-size: 12px; /* Set the font size for input text */
+    padding: 10px 10px 10px 10px;    /* Add padding to the input text */
+    border-radius: 5px; /* Add rounded corners */
+    border: 1px solid #ccc; /* Set border color */
+    width: 100%;    /* Make the input field fill the date picker box */
+    height: 100%;   /* Match the height of the date picker box */
+}
+
+
+/* Adjust calendar position to avoid overlapping after scaling */
+#pfmanager-body .custom-date-picker .DateRangePicker_picker {
+    transform: scale(.8); /* Shrink the calendar */
+    top: 0px !important; /* Vertical alignment */
+    left: 0px !important; /* Reset left alignment */
+    right: 0px !important; /* Align to the right edge */
+    transform-origin: center !important; /* Scale from the center */
+    transform: translateX(0%) scale(.8); /* Scale while centering horizontally */
+        pointer-events: auto !important; /* Ensure interactions are preserved */
+
+}
+
+/* Adjust the font size for calendar days */
+#pfmanager-body .custom-date-picker .CalendarDay {
+    font-size: 12px !important;
+}
+
+
+/* Responsive Additions */
+@media screen and (max-width: 768px) {
+    #pfmanager-wrapper {
+        width: 100%;
+        overflow-x: auto;
+    }
+
+    #pfmanager-body {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    #pfmanager-body .control-button {
+        font-size: 12px;
+        padding: 8px 15px;
+    }
+
+
+
+    #pfmanager-body table {
+        font-size: 10px;
+        overflow-x: auto;
+        display: block;
+    }
+
+    #pfmanager-body .Select, #pfmanager-body input {
+        font-size: 12px;
+    }
+}
