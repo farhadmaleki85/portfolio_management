@@ -23,6 +23,9 @@ import numpy as np
 import scipy.optimize as sco
 from layout_helper import run_standalone_app
 
+# Set the current working directory to the script's directory
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
+
 # ======================================
 # Data Fetching and Preprocessing
 # ======================================
