@@ -219,6 +219,41 @@ input#selected-rows, input#selected-columns {
     margin-right: auto;
 }
 
+/* Style for the confirmation text box */
+#pfmanager-body .confirmation-text {
+    padding: 15px;
+    margin-top: 10px;
+    background-color: #232323;
+    color: #E4E4E4;
+    border-radius: 5px;
+    border: 1px solid #727272;
+    font-size: 12px;
+    font-weight: 100;
+    /* font-family: Arial, sans-serif; */
+    max-width: 90%;
+    /* width: 100%; Adjust width as necessary */
+    text-align: center;
+    overflow-wrap: flex; /* Break long words for responsiveness */
+    word-wrap: break-word;     /* Fallback for older browsers */
+    white-space: normal;       /* Allow text to wrap to the next line */
+    width: fit-content;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Optional: Success message style */
+#pfmanager-body .confirmation-text.success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #FFBF00;
+}
+
+/* Optional: Error message style */
+#pfmanager-body .confirmation-text.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
 /* Control the size and font of the custom date picker */
 #pfmanager-body .custom-date-picker {
     font-size: 12px; /* Set the font size */

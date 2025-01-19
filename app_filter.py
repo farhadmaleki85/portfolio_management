@@ -83,9 +83,9 @@ def process_data(selected_tickers, start_date, end_date, interval, optimize_clic
         resampled_sp500_data = resample_data(clean_sp500_data, interval)
         
         # Calculate portfolio metrics
-        returns = resampled_data.pct_change().dropna()
+        returns = resampled_data.pct_change(fill_method=None).dropna()
         weights = [1 / len(selected_tickers)] * len(selected_tickers)  # Default equal weights
-        sp500_returns = resampled_sp500_data.pct_change().dropna()
+        sp500_returns = resampled_sp500_data.pct_change(fill_method=None).dropna()
         
         # Handle portfolio optimization
         removed_assets = []
@@ -334,6 +334,8 @@ def layout():
         className='app-body',
         children=[
             dcc.Store(id="cached-content", storage_type="memory"),  # Store cached data
+            # dcc.Store(id='filtered-tickers', storage_type='memory'),  # Store filtered tickers
+
 
             # Hidden div to store the portfolio state (selected tickers)
             html.Div(id='portfolio-state', style={'display': 'none'}),  # Portfolio State
@@ -377,7 +379,7 @@ def layout():
                                         html.Div('Time Frame', className='fullwidth-app-controls-name' ),
                                         dcc.DatePickerRange(
                                             id='date-picker',
-                                            start_date='2020-01-01',
+                                            start_date='2000-01-01',
                                             end_date='2024-12-31',
                                             display_format='YYYY-MM-DD',
                                             className='custom-date-picker'
@@ -410,7 +412,6 @@ def layout():
                                         ),
                                         html.Br(),
 
-                                        # html.Div('Add To Portfolio', className='fullwidth-app-controls-name'),
                                         html.Button(
                                             children='Add to Portfolio',
                                             id='add-to-portfolio-button',
@@ -429,7 +430,23 @@ def layout():
                                             value=['AAPL', 'MMM'],
                                             multi=True
                                         ),
+                                        html.Br(),
 
+                                        # Layout for the portfolio export buttons
+                                        html.Div([
+                                            # Export all portfolios button
+                                            html.Button(
+                                                children='Export All Portfolios',
+                                                id='export-all-portfolios-button',
+                                                className='control-button',
+                                                n_clicks=0),
+                                             
+                                            # Confirmation message area
+                                            html.Div(
+                                                id='all-portfolios-export-confirmation',
+                                                className='confirmation-text',
+                                                ),
+                                        ]),
                                     ]
                                 )
                             ),
@@ -493,7 +510,7 @@ def layout():
                                                     id='optimize-portfolio-button',
                                                     n_clicks=0,
                                                     className='control-button'
-                                                )
+                                                ),
                                             ],
                                             className='portfolio-optimize-container'
                                         ),
@@ -506,15 +523,15 @@ def layout():
                 ], style={"margin-top": "20px"},
 
             ),
- 
             dcc.Loading(
                 parent_className='app-loading',
                 children=html.Div([
-            
+                    # Store filtered tickers
+                    dcc.Store(id='filtered-tickers', storage_type='memory'),
+
                     # Placeholder for removed assets message
                     html.Div(
                         id="removed-assets-message",
-  
                         style={
                             'color': '#FF6347',
                             'fontSize': '16px',
@@ -522,8 +539,8 @@ def layout():
                             'text-align': 'center',
                         }
                     ),
-            
-                    # Graph container
+                    
+                    # Graph container (flexbox to center content)
                     html.Div(
                         id="graph-container",
                         style={
@@ -534,7 +551,7 @@ def layout():
                             'padding': '20px',
                         }
                     ),
-            
+                    
                     # Table container
                     html.Div(
                         id="table-container",
@@ -547,7 +564,6 @@ def layout():
                             'width': '100%',
                         }
                     ),
-            
                 ]), style={"margin-top": "20px"},
             ),
         ]
@@ -561,41 +577,81 @@ def callbacks(app):
     Args:
         app (Dash): The Dash application instance.
     """
-    # Utility function to initialize options from tickers
-    def create_options(tickers_df):
-        """
-        Create dropdown options from the tickers DataFrame.
+    # # Utility function to initialize options from tickers
+    # def create_options(tickers_df):
+    #     """
+    #     Create dropdown options from the tickers DataFrame.
 
+    #     Args:
+    #         tickers_df (DataFrame): DataFrame containing ticker symbols and security names.
+
+    #     Returns:
+    #         list: List of dictionaries with label and value for dropdown options.
+    #     """
+    #     return [{'label': row['Security'], 'value': row['Symbol']} for _, row in tickers_df.iterrows()]
+
+
+    # Cache to store data for tickers already processed
+    # cached_data = {}
+
+    def create_options(tickers_df, start_date, end_date):
+        """
+        Create dropdown options from the tickers DataFrame, ensuring tickers have at least two years of data.
+        
         Args:
             tickers_df (DataFrame): DataFrame containing ticker symbols and security names.
-
+            start_date (str): Start date for the time frame (YYYY-MM-DD).
+            end_date (str): End date for the time frame (YYYY-MM-DD).
+        
         Returns:
             list: List of dictionaries with label and value for dropdown options.
         """
-        return [{'label': row['Security'], 'value': row['Symbol']} for _, row in tickers_df.iterrows()]
+        # Convert dates to Pandas datetime
+        start_date = pd.to_datetime(start_date)
+        end_date = pd.to_datetime(end_date)
+
+        valid_tickers = []
+        
+        # Get list of tickers to check
+        tickers = tickers_df['Symbol'].tolist()
+        
+        # Download data for all tickers in a single batch
+        data = yf.download(tickers, start=start_date, end=end_date)['Close']
+
+        # Ensure each ticker has at least two years of data
+        for _, row in tickers_df.iterrows():
+            ticker = row['Symbol']
+            
+            if ticker in data and len(data[ticker].dropna()) >= 252 * 2:  # 252 trading days per year
+                valid_tickers.append({'label': row['Security'], 'value': ticker})
+            else:
+                print(f"Ticker {ticker} has insufficient data or failed to download.")
+
+        return valid_tickers
 
     # Callback 1: Update ticker dropdown based on selected industry
     @app.callback(
         Output('ticker-dropdown', 'options'),
-        Input('industry-dropdown', 'value'),
+        [Input('industry-dropdown', 'value'),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date")],
         prevent_initial_call=True
     )
-    def update_ticker_dropdown(selected_industry):
+    def update_ticker_dropdown(selected_industry, start_date, end_date):
         """
-        Update the options in the ticker dropdown based on the selected industry.
-        
-        Args:
-            selected_industry (str): The selected industry from the dropdown.
-        
-        Returns:
-            list: Filtered dropdown options based on the selected industry with "Select All" option added.
+        Update the options in the ticker dropdown based on the selected industry
+        and filter tickers with at least two years of data within the time frame.
         """
-        if not selected_industry:  # If no industry is selected, return no options
+        if not selected_industry or not start_date or not end_date:
             return []
+
+        # Filter by industry
         filtered_df = sp500_df[sp500_df['GICS Sector'] == selected_industry]
-        # Add "Select All" option
-        options = [{'label': 'Select All', 'value': 'select_all'}] + create_options(filtered_df)
+
+        # Create options with validation
+        options = [{'label': 'Select All', 'value': 'select_all'}] + create_options(filtered_df, start_date, end_date)
         return options
+
 
     # Callback 2: Handle "Select All" functionality
     @app.callback(
@@ -676,10 +732,12 @@ def callbacks(app):
     @app.callback(
         [Output('portfolio', 'options'),
          Output('portfolio', 'value')],
-        Input('stored-tickers', 'data'),
+        [Input('stored-tickers', 'data'),
+        Input("date-picker", "start_date"),
+        Input("date-picker", "end_date")],
         prevent_initial_call=True
     )
-    def update_portfolio_dropdown(stored_tickers):
+    def update_portfolio_dropdown(stored_tickers, start_date, end_date):
         """
         Update the portfolio dropdown options and preselect stored tickers.
 
@@ -693,16 +751,81 @@ def callbacks(app):
             return [], []
         # Filter stored tickers from the original dataframe to get Security Name
         filtered_df = sp500_df[sp500_df['Symbol'].isin(stored_tickers)]
-        options = create_options(filtered_df)
+        options = create_options(filtered_df, start_date, end_date)
         return options, stored_tickers  # Preselect all stored tickers
 
+    @app.callback(
+        Output('all-portfolios-export-confirmation', 'children'),
+        [Input('export-all-portfolios-button', 'n_clicks'),
+        Input('add-to-portfolio-button', 'n_clicks')],
+        [
+            State('stored-tickers', 'data'),  # Stored portfolio tickers
+            State('portfolio', 'value'),  # Optimized portfolio tickers
+            State('optimization-methods', 'value'),  # Optimization method
+            State('industry-dropdown', 'value'),  # Selected industry (sector)
+            State('filtered-tickers', 'data')  # Filtered tickers
+        ],
+        prevent_initial_call=True
+    )
+    def export_all_portfolios(export_clicks, add_clicks, stored_tickers, optimized_portfolio, optimization_method, selected_industry, filtered_tickers):
+        """
+        Export stored, optimized, or filtered tickers based on user interaction.
+
+        Args:
+            export_clicks (int): Clicks on the "Export All Portfolios" button.
+            add_clicks (int): Clicks on the "Add to Portfolio" button.
+            stored_tickers (list): List of stored portfolio tickers.
+            optimized_portfolio (list): List of optimized portfolio tickers.
+            optimization_method (str): Selected optimization method.
+            selected_industry (str): Selected industry (sector).
+            filtered_tickers (list): List of filtered tickers.
+
+        Returns:
+            str: Confirmation message.
+        """
+        if not stored_tickers and not optimized_portfolio and not filtered_tickers:
+            return "No portfolios to export."
+
+        # Ensure selected industry is valid for the file name
+        if selected_industry:
+            sector_tag = selected_industry.replace(" ", "_")  # Replace spaces with underscores for the file name
+        else:
+            sector_tag = "All_Sectors"  # Default name if no sector is selected
+
+        # Define the file path with the sector tag
+        file_path = os.path.join(os.getcwd(), f"portfolios_export_{sector_tag}.txt")
+
+        try:
+            with open(file_path, "w") as file:
+                # Write stored portfolio
+                file.write("Original Portfolio:\n")
+                if stored_tickers:
+                    for ticker in stored_tickers:
+                        file.write(f"{ticker}\n")
+                else:
+                    file.write("None\n")
+
+                # Write optimized portfolio
+                file.write("\nOptimized Portfolio:\n")
+                if optimized_portfolio and optimization_method and filtered_tickers:
+                    file.write(f"Optimization Method: {optimization_method}\n")
+                    for ticker in filtered_tickers:
+                        file.write(f"{ticker}\n")
+                else:
+                    file.write("None\n")
+
+            return f"Original and optimized portfolios exported to {file_path}."
+        except Exception as e:
+            return f"Failed to export portfolios: {str(e)}"
 
     # Callback 4: Update content (graphs, tables, messages) based on portfolio and analysis type
     @app.callback(
         [
             Output("removed-assets-message", "children"),
             Output("graph-container", "children"),
-            Output("table-container", "children")
+            Output("table-container", "children"),
+            Output("filtered-tickers", "data")
+
         ],
         [
             Input('portfolio', 'value'),
@@ -741,9 +864,10 @@ def callbacks(app):
                 return (
                     cached_data.get("removed_message", ""),
                     cached_data.get("graphs", None),
-                    cached_data.get("table", None)
+                    cached_data.get("table", None),
+                    cached_data.get("filtered_tickers", [])
                 )
-            return "", None, None  # Default empty values
+            return "", None, None, []  # Default empty values
     
         results = process_data(
             selected_tickers, start_date, end_date, interval, optimize_clicks, optimization_methods
@@ -764,8 +888,8 @@ def callbacks(app):
         removed_message = ""
         
         # Filter out assets with zero or near-zero weights
-        filtered_tickers = [ticker for ticker, weight in zip(selected_tickers, weights) if weight > 0.00001]
-        filtered_weights = [weight for weight in weights if weight > 0.00001]
+        filtered_tickers = [ticker for ticker, weight in zip(selected_tickers, weights) if weight > 0.0001]
+        filtered_weights = [weight for weight in weights if weight > 0.0001]
     
         # Correlation Table
         returns['^GSPC'] = sp500_returns
@@ -797,7 +921,7 @@ def callbacks(app):
         # Prepare the message for removed assets
         if removed_assets:
             removed_message = html.Div(
-                f"Some assets have been removed due to negligible weights (<0.01%).",
+                f"Some assets have been removed due to negligible weights (<0.1%).",
             className='removed-message',
             )   
     
@@ -845,10 +969,10 @@ def callbacks(app):
             )
 
             # Assuming 'selected_tickers' is a list of tickers in the portfolio
-            equally_weighted_returns = resampled_data[selected_tickers].pct_change().mean(axis=1).dropna()
+            equally_weighted_returns = resampled_data[selected_tickers].pct_change(fill_method=None).mean(axis=1).dropna()
             
             # S&P 500 returns for comparison
-            sp500_returns = resampled_sp500_data.pct_change().dropna()['^GSPC']
+            sp500_returns = resampled_sp500_data.pct_change(fill_method=None).dropna()['^GSPC']
             
             # Return chart including the equally weighted portfolio
             return_chart = dcc.Graph(
@@ -861,9 +985,16 @@ def callbacks(app):
                         # Weighted Portfolio
                         dict(type='scatter', x=weighted_returns.index, y=weighted_returns, mode='lines', name='Optimized Portfolio'),
                         
-                        # S&P 500
-                        dict(type='scatter', x=sp500_returns.index, y=sp500_returns, mode='lines', name='S&P 500 (^GSPC)')
+                        # S&P 500 - Filtered to match the portfolio's timeframe
+                        dict(
+                            type='scatter', 
+                            x=sp500_returns.loc[equally_weighted_returns.index.min():equally_weighted_returns.index.max()].index,
+                            y=sp500_returns.loc[equally_weighted_returns.index.min():equally_weighted_returns.index.max()],
+                            mode='lines', 
+                            name='S&P 500 (^GSPC)'
+                        )
                     ],
+
                     'layout': {
                         'title': {
                             'text': 'Stock Returns',
@@ -1064,7 +1195,7 @@ def callbacks(app):
                 
             graphs = [allocation_fig]
 
-        return removed_message, html.Div(graphs), html.Div(table)
+        return removed_message, html.Div(graphs), html.Div(table), filtered_tickers
 
 # Run the app
 app = run_standalone_app(layout, callbacks, header_colors)
